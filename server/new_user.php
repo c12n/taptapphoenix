@@ -27,9 +27,12 @@ try {
         exit;
     }
     $accountKey = sha1($user . '|' . $email . '|' . bin2hex(random_bytes(16)) . '|' . time());
+    // The game sends sha1(password); never store that as-is — wrap it in a
+    // modern password hash server-side (Claude review hardening, 2026-10-30).
+    $stored = password_hash($pass, PASSWORD_DEFAULT);
     $stmt = $db->prepare('INSERT INTO users (username, email, pass_sha1, account_key, created_at)
                           VALUES (?, ?, ?, ?, ?)');
-    $stmt->execute([$user, $email, $pass, $accountKey, time()]);
+    $stmt->execute([$user, $email, $stored, $accountKey, time()]);
     echo '200,' . $accountKey;
 } catch (Throwable $e) {
     echo '400';
