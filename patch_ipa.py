@@ -5,7 +5,7 @@ v1.00 IPA. Steps:
   - replace games/game.ios with the patched data file if one is present
     (patched_game.ios next to this script), else keep the original
   - thin the runner binary to arm64 (lief)
-  - rewrite Info.plist: c12n bundle id, version 0.1.0, MinimumOSVersion 15.0,
+  - rewrite Info.plist: c12n bundle id, version 0.2.0, MinimumOSVersion 15.0,
     drop stale keys, keep DT*/SDK stamps at 13.7 on purpose (legacy
     UIApplicationDelegate lifecycle fallback on iOS 26/27)
   - add PrivacyInfo.xcprivacy
@@ -25,10 +25,10 @@ HERE = Path(__file__).resolve().parent
 SRC_IPA = HERE / "TapTapPhoenix_1.00.ipa"
 PATCHED_GAME = HERE / "patched_game.ios"
 WORK = HERE / "build"
-OUT_IPA = HERE / "TapTapPhoenix-c12n-0.1.0.ipa"
+OUT_IPA = HERE / "TapTapPhoenix-c12n-0.2.0.ipa"
 
 BUNDLE_ID = "com.c12n.taptapphoenix"
-VERSION = "0.1.0"
+VERSION = "0.2.0"
 
 PRIVACY_PLIST = {
     "NSPrivacyTracking": False,
