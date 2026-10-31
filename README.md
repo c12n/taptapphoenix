@@ -22,7 +22,7 @@ project to recompile, so this repo rebuilds the app from that release:
 - **Minimum iOS 15.0** in place of 9.0.
 - **Privacy manifest** (`PrivacyInfo.xcprivacy`) covering the required-reason
   APIs the runner uses (UserDefaults, file timestamps, boot time, disk space).
-- **New bundle ID** `com.c12n.taptapphoenix`, version 0.1.0. The original
+- **New bundle ID** `com.c12n.taptapphoenix`. The original
   embedded profile and signature are removed; the IPA ships unsigned for
   sideloading (Feather / SignLab / AltStore sign it on install).
 - **Credits screen**: the original credits art is kept exactly as-is, with
@@ -36,19 +36,39 @@ project to recompile, so this repo rebuilds the app from that release:
   verified pixel-by-pixel against on-device screenshots — the game scales
   its 640×1387 rooms to modern displays exactly as designed.
 
+## New in v0.2.0
+
+- **Accounts and leaderboard live again.** The original backend
+  (taptapphoenix.com) is gone, so the four endpoints the game calls —
+  sign-up, login, score submission, leaderboard — were reimplemented from
+  the decompiled protocol (see `server/`) and are hosted as a small
+  PHP + SQLite service. The game data is patched to call the new host;
+  the protocol, checksums and response formats are byte-for-byte what
+  the 2020 code expects.
+- **Accessibility pack.** Hit timing is more forgiving — the Perfect
+  window is ±0.09 s (was ±0.05 s) and the Great window ±0.15 s
+  (was ±0.08 s) — and the notes are high-contrast: the note orbs gained
+  a white ring and a saturation boost, and the gameplay backgrounds
+  were darkened so the notes stand out.
+
 ## Building
 
 Push a tag `v*` (or run the workflow manually). The `Build and release`
 workflow (Ubuntu) downloads + hashes the original IPA, patches the game
-data with UndertaleModTool CLI, assembles the unsigned sideload IPA with
-`patch_ipa.py`, verifies its bundle ID / architecture / privacy manifest,
-and attaches it to the GitHub release. No secrets are required.
+data with UndertaleModTool CLI (artwork imports in `tools/import_all.csx`,
+code replacements in `tools/patch_gml/`), assembles the unsigned sideload
+IPA with `patch_ipa.py`, verifies its bundle ID / version / architecture /
+privacy manifest, and attaches it to the GitHub release. No secrets are
+required. The backend in `server/` deploys separately (Docker; see its
+compose file) and is not part of the IPA build.
 
 ## Credits
 
 Original game © Team Phoenix — programming by Nick Cohran and Chris Cohran,
 graphics by Chris Cohran and Tapulous. This is a preservation /
 interoperability rebuild of a free fan release; no original assets were
-redrawn. The added credits line is the only content change.
+redrawn. Content changes are the added credits line, the endpoint host,
+the timing windows, and the note/background contrast treatment described
+above.
 
 Rebuild tooling Copyright (c) 2026 c12n Apps.
