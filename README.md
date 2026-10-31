@@ -36,6 +36,18 @@ project to recompile, so this repo rebuilds the app from that release:
   verified pixel-by-pixel against on-device screenshots — the game scales
   its 640×1387 rooms to modern displays exactly as designed.
 
+## New in v0.3.0
+
+- **Safe-area pass.** On devices without a home button, the in-song HUD
+  (multiplier, score / "MISS!", combo) hugged the very top of the screen,
+  under the notch / Dynamic Island. It now sits clear of the island, the
+  end-of-song stats readout moved down to match, and the menus' top
+  padding grew from 44 to 64 design units.
+- **Song lengths in the song list.** Each row now shows the track's
+  length (e.g. `3:44`) right-aligned on the title line. Lengths were
+  measured from the game's own audio and are stored in a
+  `global.song_lengths` table built at startup.
+
 ## New in v0.2.0
 
 - **Accounts and leaderboard live again.** The original backend
@@ -56,7 +68,7 @@ project to recompile, so this repo rebuilds the app from that release:
 Push a tag `v*` (or run the workflow manually). The `Build and release`
 workflow (Ubuntu) downloads + hashes the original IPA, patches the game
 data with UndertaleModTool CLI (artwork imports in `tools/import_all.csx`,
-code replacements in `tools/patch_gml/`), assembles the unsigned sideload
+code replacements in `tools/patch_gml/` and `tools/patch_gml_v3/`), assembles the unsigned sideload
 IPA with `patch_ipa.py`, verifies its bundle ID / version / architecture /
 privacy manifest, and attaches it to the GitHub release. No secrets are
 required. The backend in `server/` deploys separately (Docker; see its
