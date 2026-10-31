@@ -32,4 +32,5 @@ return [
     'The Offspring|You\'re Gonna Go Far, Kid|hard' => 600000,
     'Weezer|Troublemaker|hard' => 579600,
     'Weezer|Troublemaker|medium' => 393600,
+    'Lil Godd|The 6 7 Song|easy' => 154800,
 ];
