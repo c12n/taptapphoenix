@@ -39,7 +39,10 @@ project to recompile, so this repo rebuilds the app from that release:
 ## New in v0.5.0
 
 - **First custom song: "The 6 7 Song" by Lil Godd (Easy).** The audio
-  was converted to OGG and embedded as a new sound asset
+  was converted to WAV (PCM, 44.1 kHz, mono — the format this runner
+  actually stores song audio in; v0.5.0 embedded OGG bytes, which the
+  runner treats as WAV data and plays as silence, fixed in v0.5.1) and
+  embedded as a new sound asset
   (`tools/add_songs.csx`, audio stored as base64 in `tools/custom/`),
   a 129-note Easy chart was generated from the track's onsets in the
   game's own chart format (`custom_datafiles/`, copied into the app by
