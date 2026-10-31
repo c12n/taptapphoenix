@@ -1,0 +1,18 @@
+# Tap Tap Phoenix revival backend — ZimaOS Custom App shape.
+# Set TTP_AUTH_KEY in the app environment to the shared secret the game
+# sends as ?auth= (it is baked into the game data; see lib.php).
+services:
+  ttp:
+    build: .
+    container_name: ttp-server
+    restart: unless-stopped
+    environment:
+      TTP_AUTH_KEY: "${TTP_AUTH_KEY:?set TTP_AUTH_KEY}"
+      TTP_DATA_DIR: /var/www/data
+    ports:
+      - "8890:80"
+    volumes:
+      - ttp-data:/var/www/data
+
+volumes:
+  ttp-data:
