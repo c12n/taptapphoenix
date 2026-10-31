@@ -36,6 +36,17 @@ project to recompile, so this repo rebuilds the app from that release:
   verified pixel-by-pixel against on-device screenshots — the game scales
   its 640×1387 rooms to modern displays exactly as designed.
 
+## New in v0.5.0
+
+- **First custom song: "The 6 7 Song" by Lil Godd (Easy).** The audio
+  was converted to OGG and embedded as a new sound asset
+  (`tools/add_songs.csx`, audio stored as base64 in `tools/custom/`),
+  a 129-note Easy chart was generated from the track's onsets in the
+  game's own chart format (`custom_datafiles/`, copied into the app by
+  `patch_ipa.py`), and the catalog entry is injected alongside the
+  v0.4.0 hidden song. Its leaderboard cap (129 × 150 × 8) is in
+  `server/caps.php`. Adding further songs follows the same recipe.
+
 ## New in v0.4.0
 
 - **A hidden 24th song, unlocked.** "Legend ft Backchat" by Jaroslav Beck
