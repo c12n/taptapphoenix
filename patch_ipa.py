@@ -5,7 +5,7 @@ v1.00 IPA. Steps:
   - replace games/game.ios with the patched data file if one is present
     (patched_game.ios next to this script), else keep the original
   - thin the runner binary to arm64 (lief)
-  - rewrite Info.plist: c12n bundle id, version 0.4.0, MinimumOSVersion 15.0,
+  - rewrite Info.plist: c12n bundle id, version 0.5.0, MinimumOSVersion 15.0,
     drop stale keys, keep DT*/SDK stamps at 13.7 on purpose (legacy
     UIApplicationDelegate lifecycle fallback on iOS 26/27)
   - add PrivacyInfo.xcprivacy
@@ -25,10 +25,10 @@ HERE = Path(__file__).resolve().parent
 SRC_IPA = HERE / "TapTapPhoenix_1.00.ipa"
 PATCHED_GAME = HERE / "patched_game.ios"
 WORK = HERE / "build"
-OUT_IPA = HERE / "TapTapPhoenix-c12n-0.4.0.ipa"
+OUT_IPA = HERE / "TapTapPhoenix-c12n-0.5.0.ipa"
 
 BUNDLE_ID = "com.c12n.taptapphoenix"
-VERSION = "0.4.0"
+VERSION = "0.5.0"
 
 PRIVACY_PLIST = {
     "NSPrivacyTracking": False,
@@ -85,6 +85,15 @@ def main() -> None:
         print("using patched game.ios:", PATCHED_GAME.stat().st_size)
     else:
         print("no patched_game.ios — keeping original game data")
+
+    # c12n-added songs: extra chart files live next to this script in
+    # custom_datafiles/ and are copied into the app's games/datafiles/.
+    custom_df = HERE / "custom_datafiles"
+    if custom_df.is_dir():
+        for f in sorted(custom_df.iterdir()):
+            if f.is_file():
+                shutil.copyfile(f, app / "games" / "datafiles" / f.name)
+                print("added custom chart:", f.name)
 
     thin_arm64(app / "TapTapPhoenix")
 
