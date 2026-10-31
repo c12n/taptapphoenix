@@ -1,0 +1,12 @@
+Tap Tap Phoenix — original game, artwork, music charts and name
+Copyright (c) Team Phoenix (Chris Cohran, Nick Cohran) and contributors.
+Special thanks in the original credits: Tapulous.
+
+This repository contains only the rebuild tooling (patch scripts, CI
+workflow, documentation) plus one modified credits image derived from the
+original credits artwork, which carries the added line
+"Remade for modern iOS by c12n Apps with ❤️ from Canada" at the bottom.
+The game binary and game data are downloaded from the original public
+release at build time and are not stored in this repository.
+
+Rebuild tooling Copyright (c) 2026 c12n Apps.
