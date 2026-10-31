@@ -3,7 +3,7 @@ name: Build and release
 # Rebuild Tap Tap Phoenix for modern iOS and publish the sideload IPA on
 # the GitHub release. (GitHub-only distribution for this project — no
 # TestFlight.) Triggered by v* tags and manually; either way the IPA is
-# attached to the v0.1.0 release.
+# attached to the v0.2.0 release.
 
 on:
   workflow_dispatch:
@@ -18,8 +18,8 @@ env:
   ORIGINAL_IPA_URL: https://github.com/tapphoenix/taptapphoenix/releases/download/v1.00/TapTapPhoenix_1.00.ipa
   ORIGINAL_IPA_SHA256: 89e876c292091f577f763ba71734c7f46796ffc51e8a4e9df5e22f2f2f50a4c7
   UTMT_URL: https://github.com/UnderminersTeam/UndertaleModTool/releases/download/0.9.2.0/UTMT_CLI_v0.9.2.0-Ubuntu.zip
-  IPA_NAME: TapTapPhoenix-c12n-0.1.0.ipa
-  RELEASE_TAG: v0.1.0
+  IPA_NAME: TapTapPhoenix-c12n-0.2.0.ipa
+  RELEASE_TAG: v0.2.0
 
 jobs:
   build:
@@ -52,14 +52,26 @@ jobs:
           mkdir -p utmt && unzip -o -q utmt.zip -d utmt
           chmod +x utmt/UndertaleModCli
 
-      - name: Decode the patched credits sprite
-        run: base64 -d tools/spr_Credits_new.png.b64 > tools/spr_Credits_new.png
-
-      - name: Patch the credits sprite into the game data
+      - name: Decode the patched artwork
         run: |
-          sed -i "s|__WORKSPACE__|$GITHUB_WORKSPACE|g" tools/import_credits.csx
+          base64 -d tools/spr_Credits_new.png.b64 > tools/spr_Credits_new.png
+          for f in tools/hc/*.b64; do base64 -d "$f" > "${f%.b64}"; done
+          ls -la tools/hc/
+
+      - name: Patch artwork into the game data (credits + high-contrast pack)
+        run: |
+          sed -i "s|__WORKSPACE__|$GITHUB_WORKSPACE|g" tools/import_all.csx
           ./utmt/UndertaleModCli load extracted_full/Payload/TapTapPhoenix.app/games/game.ios \
-            -s tools/import_credits.csx -o patched_game.ios < /dev/null
+            -s tools/import_all.csx -o step1.ios -f < /dev/null
+
+      - name: Patch code (server URL + forgiving timing windows)
+        run: |
+          ./utmt/UndertaleModCli replace step1.ios -o patched_game.ios \
+            -c "gml_GlobalScript_update_score=./tools/patch_gml/gml_GlobalScript_update_score.gml" \
+            -c "gml_Object_obj_AccountMenu_Gesture_64=./tools/patch_gml/gml_Object_obj_AccountMenu_Gesture_64.gml" \
+            -c "gml_Object_obj_LeaderboardMenu_Create_0=./tools/patch_gml/gml_Object_obj_LeaderboardMenu_Create_0.gml" \
+            -c "gml_Object_obj_SongStatsMenu_Gesture_64=./tools/patch_gml/gml_Object_obj_SongStatsMenu_Gesture_64.gml" \
+            < /dev/null
 
       - name: Assemble the IPA
         run: python3 patch_ipa.py
@@ -68,12 +80,13 @@ jobs:
         run: |
           python3 - << 'PY'
           import plistlib, zipfile, lief
-          z = zipfile.ZipFile("TapTapPhoenix-c12n-0.1.0.ipa")
+          z = zipfile.ZipFile("TapTapPhoenix-c12n-0.2.0.ipa")
           names = z.namelist()
           assert "Payload/TapTapPhoenix.app/PrivacyInfo.xcprivacy" in names
           assert not any("_CodeSignature" in n or "embedded.mobileprovision" in n for n in names)
           info = plistlib.loads(z.read("Payload/TapTapPhoenix.app/Info.plist"))
           assert info["CFBundleIdentifier"] == "com.c12n.taptapphoenix", info["CFBundleIdentifier"]
+          assert info["CFBundleShortVersionString"] == "0.2.0", info["CFBundleShortVersionString"]
           assert info["MinimumOSVersion"] == "15.0"
           open("/tmp/runner.bin", "wb").write(z.read("Payload/TapTapPhoenix.app/TapTapPhoenix"))
           fat = lief.MachO.parse("/tmp/runner.bin")
@@ -95,7 +108,11 @@ jobs:
           tag_name: ${{ github.ref_type == 'tag' && github.ref_name || env.RELEASE_TAG }}
           files: ${{ env.IPA_NAME }}
           body: |
-            Tap Tap Phoenix remade for modern iOS by c12n Apps.
+            Tap Tap Phoenix v0.2.0 — remade for modern iOS by c12n Apps.
+
+            New in this build:
+            - Accounts and the online leaderboard work again — the original server is gone, so the game now talks to a c12n-hosted revival of the same endpoints
+            - Accessibility pack: more forgiving hit timing (Perfect and Great windows roughly doubled) and high-contrast notes — white-ringed orbs on darkened backgrounds
 
             - arm64-only build, minimum iOS 15.0, privacy manifest included
             - original credits kept, with a c12n Apps line added at the bottom
