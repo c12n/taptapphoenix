@@ -3,10 +3,10 @@ using System.IO;
 using UndertaleModLib.Models;
 
 // Adds one embedded song: Lil Godd — The 6 7 Song (audio index 25).
-// The OGG is decoded from tools/custom/lilgodd.ogg.b64 by the build.
+// The OGG is decoded from tools/custom/lilgodd.wav.b64 by the build.
 EnsureDataLoaded();
 
-string oggPath = "__WORKSPACE__/tools/custom/lilgodd.ogg";
+string oggPath = "__WORKSPACE__/tools/custom/lilgodd.wav";
 byte[] ogg = File.ReadAllBytes(oggPath);
 
 var newAudio = new UndertaleEmbeddedAudio { Data = ogg };
