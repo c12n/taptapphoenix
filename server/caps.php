@@ -1,0 +1,35 @@
+<?php
+// Per-chart maximum legitimate scores for the TapTapPhoenix revival server.
+// cap = note_count x 150 (Perfect) x 8 (max multiplier, Revenge Mode).
+// Generated from the game's own .tap chart files; scores above the cap are impossible.
+return [
+    'A Social Path|Cliche|extreme' => 477600,
+    'Anberlin|Feel Good Drag|easy' => 380400,
+    'Becca|Liquid Smog|easy' => 230400,
+    'Bunkohead|In My Arms|hard' => 314400,
+    'DJ 4Mile|Marimbini|easy' => 84000,
+    'DJ 4Mile|Sololuna|extreme' => 517200,
+    'DJ Tapulous|Tap Tap Tap|hard' => 356400,
+    'DJ Tapulous|Tap Tap Tap|medium' => 261600,
+    'Electric Funky|Oxygenio|easy' => 136800,
+    'Everlast|Stone In My Hand|medium' => 375600,
+    'Florent Lelong|Showtime|easy' => 150000,
+    'Jaroslav Beck|Legend ft Backchat|easy' => 225600,
+    'Kaiser Chiefs|Never Miss A Beat|easy' => 411600,
+    'Kaiser Chiefs|Never Miss A Beat|hard' => 709200,
+    'Kew|Dark Liquor|easy' => 106800,
+    'Lunar Fiction|She\'s A Killer|easy' => 201600,
+    'Musicshake|Heartbreaker|easy' => 135600,
+    'Nick Gallant|Turn Yourself Around|easy' => 277200,
+    'Nick Gallant|Turn Yourself Around|medium' => 369600,
+    'Nine Inch Nails|Discipline|easy' => 423600,
+    'Nine Inch Nails|Discipline|hard' => 808800,
+    'Q.N.D.|Supernova|extreme' => 405600,
+    'Senses Fail|Four Years|easy' => 379200,
+    'Senses Fail|Lungs Like Gallows|extreme' => 900000,
+    'Senses Fail|Wolves At The Door|medium' => 447600,
+    'Synthetic Sinergy|I Wanna Know|easy' => 168000,
+    'The Offspring|You\'re Gonna Go Far, Kid|hard' => 600000,
+    'Weezer|Troublemaker|hard' => 579600,
+    'Weezer|Troublemaker|medium' => 393600,
+];

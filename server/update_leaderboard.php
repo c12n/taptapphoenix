@@ -34,6 +34,14 @@ try {
         echo '300';
         exit;
     }
+    // Anti-forgery cap: the validity checksum secret ships inside the game,
+    // so reject scores no legitimate run could reach (and unknown charts).
+    $caps = require __DIR__ . '/caps.php';
+    $capKey = $artist . '|' . $song . '|' . $difficulty;
+    if (!isset($caps[$capKey]) || (int) $scoreRaw > $caps[$capKey]) {
+        echo '402';
+        exit;
+    }
     $stmt = $db->prepare('INSERT INTO scores (user_id, artist, song, difficulty, score, created_at)
                           VALUES (?, ?, ?, ?, ?, ?)');
     $stmt->execute([(int) $row['id'], $artist, $song, $difficulty, (int) $scoreRaw, time()]);
