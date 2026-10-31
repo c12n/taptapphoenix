@@ -48,6 +48,7 @@ if (!ds_exists(song_list, ds_type_list))
 }
 else
 {
+    var _lengths = ["1:57", "2:23", "1:58", "1:55", "1:55", "3:44", "1:30", "", "3:08", "2:04", "1:42", "3:28", "2:32", "1:52", "2:58", "1:56", "3:35", "2:16", "1:54", "4:16", "3:22", "3:00", "1:48", "2:49", "1:51"];
     for (var i = 0; i < ds_list_size(song_list); i++)
     {
         var _y = i * _menu_item_height;
@@ -59,7 +60,7 @@ else
         draw_text(37, _y + 8, array_get(array_get(_entry, 0), 5));
         draw_set_color(c_white);
         draw_set_halign(fa_right);
-        draw_text(menu_item_width - 37, _y + 8, variable_struct_get(global.song_lengths, string(array_get(_entry, 1))));
+        draw_text(menu_item_width - 37, _y + 8, _lengths[array_get(_entry, 1)]);
         draw_set_halign(fa_left);
         draw_set_font(f_20);
         draw_text(41, _y + 53, array_get(array_get(_entry, 0), 4));
