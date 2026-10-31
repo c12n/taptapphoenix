@@ -36,17 +36,19 @@ project to recompile, so this repo rebuilds the app from that release:
   verified pixel-by-pixel against on-device screenshots — the game scales
   its 640×1387 rooms to modern displays exactly as designed.
 
-## New in v0.3.0
+## New in v0.3.1
 
 - **Safe-area pass.** On devices without a home button, the in-song HUD
   (multiplier, score / "MISS!", combo) hugged the very top of the screen,
-  under the notch / Dynamic Island. It now sits clear of the island, the
-  end-of-song stats readout moved down to match, and the menus' top
-  padding grew from 44 to 64 design units.
+  under the notch / Dynamic Island. It now sits clear of the island, and
+  the end-of-song stats readout moved down to match.
 - **Song lengths in the song list.** Each row now shows the track's
   length (e.g. `3:44`) right-aligned on the title line. Lengths were
-  measured from the game's own audio and are stored in a
-  `global.song_lengths` table built at startup.
+  measured from the game's own audio; the table is built inside the menu
+  code itself.
+- v0.3.0 crashed on launch and was superseded the same day: it
+  recompiled the game's startup script, which this 2020 GameMaker VM
+  does not tolerate. v0.3.1 leaves that script completely untouched.
 
 ## New in v0.2.0
 
