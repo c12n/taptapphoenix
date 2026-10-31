@@ -36,6 +36,25 @@ project to recompile, so this repo rebuilds the app from that release:
   verified pixel-by-pixel against on-device screenshots — the game scales
   its 640×1387 rooms to modern displays exactly as designed.
 
+## New in v0.4.0
+
+- **A hidden 24th song, unlocked.** "Legend ft Backchat" by Jaroslav Beck
+  (Easy) was inside the game all along — audio and a finished chart — but
+  the original developers never added it to the catalog. It is now
+  injected into the song list at menu startup (the startup script itself
+  stays untouched, per the v0.3.1 lesson) and appears under Easy Tracks,
+  with leaderboard support like every other song.
+- **No Fail practice mode.** A third Options toggle, built on the same
+  pattern as Arrows / Miss Sound and saved to the same options file.
+  Misses still flash "MISS!" but no longer reset combo or multiplier,
+  and No Fail runs are not registered on the leaderboard.
+- **Song progress bar** under the in-song HUD.
+- **Server score caps.** `server/caps.php` holds each chart's true
+  maximum score (note count × 150 × 8), generated from the game's own
+  chart files; `update_leaderboard.php` rejects anything above the cap
+  (and any unknown chart), since the score checksum secret necessarily
+  ships inside the game.
+
 ## New in v0.3.1
 
 - **Safe-area pass.** On devices without a home button, the in-song HUD
