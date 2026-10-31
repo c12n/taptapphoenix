@@ -3,7 +3,7 @@ name: Build and release
 # Rebuild Tap Tap Phoenix for modern iOS and publish the sideload IPA on
 # the GitHub release. (GitHub-only distribution for this project — no
 # TestFlight.) Triggered by v* tags and manually; either way the IPA is
-# attached to the v0.5.0 release.
+# attached to the v0.5.1 release.
 
 on:
   workflow_dispatch:
@@ -18,8 +18,8 @@ env:
   ORIGINAL_IPA_URL: https://github.com/tapphoenix/taptapphoenix/releases/download/v1.00/TapTapPhoenix_1.00.ipa
   ORIGINAL_IPA_SHA256: 89e876c292091f577f763ba71734c7f46796ffc51e8a4e9df5e22f2f2f50a4c7
   UTMT_URL: https://github.com/UnderminersTeam/UndertaleModTool/releases/download/0.9.2.0/UTMT_CLI_v0.9.2.0-Ubuntu.zip
-  IPA_NAME: TapTapPhoenix-c12n-0.5.0.ipa
-  RELEASE_TAG: v0.5.0
+  IPA_NAME: TapTapPhoenix-c12n-0.5.1.ipa
+  RELEASE_TAG: v0.5.1
 
 jobs:
   build:
@@ -56,7 +56,7 @@ jobs:
         run: |
           base64 -d tools/spr_Credits_new.png.b64 > tools/spr_Credits_new.png
           for f in tools/hc/*.b64; do base64 -d "$f" > "${f%.b64}"; done
-          base64 -d tools/custom/lilgodd.ogg.b64 > tools/custom/lilgodd.ogg
+          base64 -d tools/custom/lilgodd.wav.b64 > tools/custom/lilgodd.wav
           ls -la tools/hc/
 
       - name: Patch artwork into the game data (credits + high-contrast pack)
@@ -86,7 +86,7 @@ jobs:
             -c "gml_Object_obj_songStats_Draw_64=./tools/patch_gml_v3/gml_Object_obj_songStats_Draw_64.gml" \
             < /dev/null
 
-      - name: Patch code v0.5.0 (hidden song, No Fail mode, progress bar, song lengths, HUD safe area)
+      - name: Patch code v0.5.1 (hidden song, No Fail mode, progress bar, song lengths, HUD safe area)
         run: |
           ./utmt/UndertaleModCli replace step3.ios -o step4.ios \
             -c "gml_Object_obj_Conductor_Draw_64=./tools/patch_gml_v4/gml_Object_obj_Conductor_Draw_64.gml" \
@@ -100,7 +100,7 @@ jobs:
             -c "gml_Object_obj_SongStatsMenu_Gesture_64=./tools/patch_gml_v4/gml_Object_obj_SongStatsMenu_Gesture_64.gml" \
             < /dev/null
 
-      - name: Patch code v0.5.0 (custom song catalog + lengths)
+      - name: Patch code v0.5.1 (custom song catalog + lengths)
         run: |
           ./utmt/UndertaleModCli replace step4.ios -o patched_game.ios \
             -c "gml_Object_obj_MainMenu_Create_0=./tools/patch_gml_v5/gml_Object_obj_MainMenu_Create_0.gml" \
@@ -114,13 +114,13 @@ jobs:
         run: |
           python3 - << 'PY'
           import plistlib, zipfile, lief
-          z = zipfile.ZipFile("TapTapPhoenix-c12n-0.5.0.ipa")
+          z = zipfile.ZipFile("TapTapPhoenix-c12n-0.5.1.ipa")
           names = z.namelist()
           assert "Payload/TapTapPhoenix.app/PrivacyInfo.xcprivacy" in names
           assert not any("_CodeSignature" in n or "embedded.mobileprovision" in n for n in names)
           info = plistlib.loads(z.read("Payload/TapTapPhoenix.app/Info.plist"))
           assert info["CFBundleIdentifier"] == "com.c12n.taptapphoenix", info["CFBundleIdentifier"]
-          assert info["CFBundleShortVersionString"] == "0.5.0", info["CFBundleShortVersionString"]
+          assert info["CFBundleShortVersionString"] == "0.5.1", info["CFBundleShortVersionString"]
           assert info["MinimumOSVersion"] == "15.0"
           open("/tmp/runner.bin", "wb").write(z.read("Payload/TapTapPhoenix.app/TapTapPhoenix"))
           fat = lief.MachO.parse("/tmp/runner.bin")
@@ -142,10 +142,11 @@ jobs:
           tag_name: ${{ github.ref_type == 'tag' && github.ref_name || env.RELEASE_TAG }}
           files: ${{ env.IPA_NAME }}
           body: |
-            Tap Tap Phoenix v0.5.0 — remade for modern iOS by c12n Apps.
+            Tap Tap Phoenix v0.5.1 — remade for modern iOS by c12n Apps.
 
             New in this build:
             - First custom song added: "The 6 7 Song" by Lil Godd (Easy, 1:56) — audio embedded into the game data and a chart generated from the track, with leaderboard support and a score cap like the built-in songs
+            - v0.5.1 fixes the custom song playing in silence: the audio is now embedded as uncompressed WAV, the same format the original songs use
 
             From v0.4.0:
             - A hidden 24th song unlocked: "Legend ft Backchat" by Jaroslav Beck (Easy) — its audio and chart were inside the game all along, but the original developers never added it to the catalog
