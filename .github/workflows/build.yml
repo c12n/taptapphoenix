@@ -1,0 +1,102 @@
+name: Build and release
+
+# Rebuild Tap Tap Phoenix for modern iOS and publish the sideload IPA on
+# the GitHub release. (GitHub-only distribution for this project — no
+# TestFlight.) Triggered by v* tags and manually; either way the IPA is
+# attached to the v0.1.0 release.
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+env:
+  ORIGINAL_IPA_URL: https://github.com/tapphoenix/taptapphoenix/releases/download/v1.00/TapTapPhoenix_1.00.ipa
+  ORIGINAL_IPA_SHA256: 89e876c292091f577f763ba71734c7f46796ffc51e8a4e9df5e22f2f2f50a4c7
+  UTMT_URL: https://github.com/UnderminersTeam/UndertaleModTool/releases/download/0.9.2.0/UTMT_CLI_v0.9.2.0-Ubuntu.zip
+  IPA_NAME: TapTapPhoenix-c12n-0.1.0.ipa
+  RELEASE_TAG: v0.1.0
+
+jobs:
+  build:
+    name: Assemble sideload IPA
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python deps
+        run: pip install lief
+
+      - name: Download and verify the original IPA
+        run: |
+          curl -sL -o TapTapPhoenix_1.00.ipa "$ORIGINAL_IPA_URL"
+          echo "$ORIGINAL_IPA_SHA256  TapTapPhoenix_1.00.ipa" | sha256sum -c -
+
+      - name: Extract game data
+        run: |
+          mkdir -p extracted_full
+          unzip -o -q TapTapPhoenix_1.00.ipa "Payload/TapTapPhoenix.app/games/game.ios" -d extracted_full
+
+      - name: Download UndertaleModTool CLI
+        run: |
+          curl -sL -o utmt.zip "$UTMT_URL"
+          mkdir -p utmt && unzip -o -q utmt.zip -d utmt
+          chmod +x utmt/UndertaleModCli
+
+      - name: Decode the patched credits sprite
+        run: base64 -d tools/spr_Credits_new.png.b64 > tools/spr_Credits_new.png
+
+      - name: Patch the credits sprite into the game data
+        run: |
+          sed -i "s|__WORKSPACE__|$GITHUB_WORKSPACE|g" tools/import_credits.csx
+          ./utmt/UndertaleModCli load extracted_full/Payload/TapTapPhoenix.app/games/game.ios \
+            -s tools/import_credits.csx -o patched_game.ios < /dev/null
+
+      - name: Assemble the IPA
+        run: python3 patch_ipa.py
+
+      - name: Verify the IPA
+        run: |
+          python3 - << 'PY'
+          import plistlib, zipfile, lief
+          z = zipfile.ZipFile("TapTapPhoenix-c12n-0.1.0.ipa")
+          names = z.namelist()
+          assert "Payload/TapTapPhoenix.app/PrivacyInfo.xcprivacy" in names
+          assert not any("_CodeSignature" in n or "embedded.mobileprovision" in n for n in names)
+          info = plistlib.loads(z.read("Payload/TapTapPhoenix.app/Info.plist"))
+          assert info["CFBundleIdentifier"] == "com.c12n.taptapphoenix", info["CFBundleIdentifier"]
+          assert info["MinimumOSVersion"] == "15.0"
+          open("/tmp/runner.bin", "wb").write(z.read("Payload/TapTapPhoenix.app/TapTapPhoenix"))
+          fat = lief.MachO.parse("/tmp/runner.bin")
+          archs = [str(b.header.cpu_type) for b in fat]
+          assert archs == ["CPU_TYPE.ARM64"], archs
+          print("IPA verified:", info["CFBundleShortVersionString"], archs)
+          PY
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sideload-ipa
+          path: ${{ env.IPA_NAME }}
+          if-no-files-found: error
+
+      - name: Attach IPA to the GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || env.RELEASE_TAG }}
+          files: ${{ env.IPA_NAME }}
+          body: |
+            Tap Tap Phoenix remade for modern iOS by c12n Apps.
+
+            - arm64-only build, minimum iOS 15.0, privacy manifest included
+            - original credits kept, with a c12n Apps line added at the bottom
+            - unsigned sideload IPA — sign it with Feather, SignLab, AltStore or your tool of choice
