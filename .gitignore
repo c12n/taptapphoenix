@@ -1,0 +1,10 @@
+*.ipa
+*.mobileprovision
+*.p12
+*.p8
+patched_game.ios
+extracted_full/
+utmt/
+build/
+verify/
+__pycache__/
